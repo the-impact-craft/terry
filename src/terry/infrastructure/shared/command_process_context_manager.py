@@ -1,3 +1,4 @@
+import io
 import subprocess
 from typing import List, Tuple, Union, IO
 
@@ -28,17 +29,20 @@ class CommandProcessContextManager:
 
         :return: Tuple containing stdin, stdout, and stderr streams.
         """
-        self.process = subprocess.Popen(
-            self.command,
-            cwd=self.cwd,
-            env=self.env_vars,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.PIPE,
-            text=True,  # Returns strings instead of bytes
-        )
+        try:
+            self.process = subprocess.Popen(
+                self.command,
+                cwd=self.cwd,
+                env=self.env_vars,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                stdin=subprocess.PIPE,
+                text=True,  # Returns strings instead of bytes
+            )
 
-        return self.process.stdin, self.process.stdout, self.process.stderr
+            return self.process.stdin, self.process.stdout, self.process.stderr
+        except Exception as e:
+            return io.StringIO(), io.StringIO(), io.StringIO(str(e))
 
     def __exit__(self, exc_type, exc_value, traceback):
         """

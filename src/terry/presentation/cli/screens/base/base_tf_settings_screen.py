@@ -5,11 +5,11 @@ from textual.css.query import NoMatches
 from textual.screen import ModalScreen
 from textual.widgets._toggle_button import ToggleButton
 from terry.domain.operation_system.entities import Variable
-from terry.presentation.cli.custom.widgets.buttons.add_key_value_button import AddKeyValueButton
-from terry.presentation.cli.custom.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
-from terry.presentation.cli.custom.widgets.form.file_selection_block import FileSelectionBlock
-from terry.presentation.cli.custom.widgets.form.key_value_block import KeyValueBlock
-from terry.presentation.cli.custom.widgets.form.text_input_block import TextInputBlock
+from terry.presentation.cli.widgets.buttons.add_key_value_button import AddKeyValueButton
+from terry.presentation.cli.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
+from terry.presentation.cli.widgets.form.file_selection_block import FileSelectionBlock
+from terry.presentation.cli.widgets.form.key_value_block import KeyValueBlock
+from terry.presentation.cli.widgets.form.text_input_block import TextInputBlock
 from terry.presentation.cli.utils import get_unique_id
 
 

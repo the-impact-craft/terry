@@ -15,7 +15,7 @@ from textual.widgets import Rule, Label
 
 from terry.infrastructure.file_system.exceptions import ListDirException
 from terry.infrastructure.file_system.services import FileSystemService
-from terry.presentation.cli.custom.widgets.containers import (
+from terry.presentation.cli.widgets.containers import (
     ScrollHorizontalContainerWithNoBindings,
     ScrollVerticalContainerWithNoBindings,
 )

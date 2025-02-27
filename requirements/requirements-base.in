@@ -3,3 +3,4 @@ pip-compile-multi==2.7.1
 textual[syntax]==2.0.4
 watchdog==6.0.0
 dependency-injector==4.45.0
+diskcache==5.6.3

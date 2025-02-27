@@ -1,24 +1,34 @@
 from textual import on
 from textual.app import ComposeResult
-from textual.containers import Horizontal, Container
+from textual.containers import Container, Horizontal
 from textual.css.query import NoMatches
-from textual.widgets import Label, Static
+from textual.widgets import Input, Static
 
-from terry.presentation.cli.custom.widgets.clickable_icon import ClickableIcon
-from terry.presentation.cli.custom.widgets.form.collapsible_with_no_title import CollapsibleWithNoTitle
+from terry.presentation.cli.widgets.clickable_icon import ClickableIcon
+from terry.presentation.cli.widgets.form.collapsible_with_no_title import CollapsibleWithNoTitle
 
 
-class CollapsibleInfoBlock(Container):
+class TextInputBlock(Container):
     DEFAULT_CSS = """
-    CollapsibleInfoBlock {
+    TextInputBlock {
         height: auto;
 
         & > Horizontal {
-        height: auto;
+            width: 100%;
+            height: auto;
+            padding_bottom: 1;
+            padding_top: 0;
 
-        & > Label {
-            padding-right: 1;
-        }
+            & > Input {
+                width: 65%
+            }
+            & > ClickableIcon {
+                overflow-x: hidden;
+                width: 35%;
+                height: 3;
+                padding: 1 1;
+            }
+
       }
 
       & > CollapsibleWithNoTitle {
@@ -45,12 +55,14 @@ class CollapsibleInfoBlock(Container):
         self.setting_name = setting_name
         self.label = label
         self.description = description
+        self._input = None
         super().__init__(**kwargs)
 
     def compose(self) -> ComposeResult:
+        self._input = Input()
         with Horizontal(id=f"{self.setting_name}_block"):
-            yield Label(self.label)
-            yield ClickableIcon("(i)", name=self.setting_name)
+            yield ClickableIcon(f"{self.label} (i):", name=self.setting_name)
+            yield self._input
         with CollapsibleWithNoTitle(collapsed=True, title="", id=f"{self.setting_name}_toggle"):
             yield Static(self.description)
 
@@ -71,3 +83,9 @@ class CollapsibleInfoBlock(Container):
         except NoMatches:
             return
         collapsible.collapsed = not collapsible.collapsed
+
+    @property
+    def content(self):
+        if self._input is None:
+            return None
+        return self._input.value

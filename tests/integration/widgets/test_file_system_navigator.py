@@ -5,7 +5,7 @@ from unittest.mock import patch
 import pytest
 
 from terry.domain.file_system.entities import ListDirOutput
-from terry.presentation.cli.custom.widgets.file_system_navigator import (
+from terry.presentation.cli.widgets.file_system_navigator import (
     FileSystemNavigator,
     PathListingContainer,
     FileSystemWidget,
@@ -18,7 +18,7 @@ from tests.integration.utils import double_click, enter, click, focus
 FOLDER_CLASS = FileSystemNavigatorClasses.DIRECTORY_LISTING_FOLDER.value
 FILE_CLASS = FileSystemNavigatorClasses.DIRECTORY_LISTING_FILE.value
 
-FILE_SYSTEM_WIDGET_CLASS_PATH = "terry.presentation.cli.custom.widgets.file_system_navigator.FileSystemWidget"
+FILE_SYSTEM_WIDGET_CLASS_PATH = "terry.presentation.cli.widgets.file_system_navigator.FileSystemWidget"
 
 
 class TestFileSystemNavigator:

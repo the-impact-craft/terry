@@ -7,6 +7,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Vertical, Horizontal, Container
 from textual.css.query import NoMatches
+from textual.reactive import reactive
 from textual.widgets import Footer, Label
 from textual.widgets._toggle_button import ToggleButton
 from watchdog.events import FileSystemEvent
@@ -26,10 +27,11 @@ from terry.infrastructure.terraform.workspace.exceptions import (
 )
 from terry.infrastructure.terraform.workspace.services import WorkspaceService
 from terry.presentation.cli.action_handlers.main import action_handler_registry
-from terry.presentation.cli.custom.messages.dir_activate_message import DirActivate
-from terry.presentation.cli.custom.messages.files_select_message import FileSelect
-from terry.presentation.cli.custom.messages.path_delete_message import PathDelete
-from terry.presentation.cli.custom.widgets.resizable_rule import ResizingRule
+from terry.presentation.cli.messages.dir_activate_message import DirActivate
+from terry.presentation.cli.messages.files_select_message import FileSelect
+from terry.presentation.cli.messages.path_delete_message import PathDelete
+from terry.presentation.cli.widgets.buttons.sidebar_button import SidebarButton
+from terry.presentation.cli.widgets.resizable_rule import ResizingRule
 from terry.presentation.cli.di_container import DiContainer
 from terry.presentation.cli.entities.terraform_command_executor import TerraformCommandExecutor
 from terry.presentation.cli.screens.add_file.main import AddFileScreen
@@ -51,6 +53,7 @@ from terry.presentation.cli.screens.main.helpers import get_or_raise_validate_te
 from terry.presentation.cli.screens.main.mixins.resize_containers_watcher_mixin import ResizeContainersWatcherMixin
 from terry.presentation.cli.screens.main.mixins.system_monitoring_mixin import SystemMonitoringMixin
 from terry.presentation.cli.screens.main.mixins.terraform_action_handler_mixin import TerraformActionHandlerMixin
+from terry.presentation.cli.screens.main.sidebars.history_sidebar import CommandHistorySidebar
 from terry.presentation.cli.screens.search.main import SearchScreen
 from terry.presentation.cli.themes.arctic import arctic_theme
 from terry.presentation.cli.themes.github_dark import github_dark_theme
@@ -79,6 +82,7 @@ class Terry(App, ResizeContainersWatcherMixin, TerraformActionHandlerMixin, Syst
     ]
 
     CSS_PATH = "styles.tcss"
+    TITLE = "Terry"
 
     BINDINGS = [
         Binding(key="q", action="quit", description="Quit the app"),
@@ -92,7 +96,11 @@ class Terry(App, ResizeContainersWatcherMixin, TerraformActionHandlerMixin, Syst
             Binding(action.shortcut, action=f'tf_request("{action.value}")', description=action.name)
             for action in TERRAFORM_MAIN_ACTIONS + TERRAFORM_ADDITIONAL_ACTIONS
         ],
+        Binding("h", "toggle_history_sidebar", "History"),
+        Binding("escape", "exit", "Exit sidebar", show=False),
     ]
+
+    show_history_sidebar = reactive(False)
 
     @inject
     def __init__(
@@ -144,6 +152,7 @@ class Terry(App, ResizeContainersWatcherMixin, TerraformActionHandlerMixin, Syst
         self.workspaces_container: Workspaces | None = None
         self.project_tree_container: ProjectTree | None = None
         self.content: Content | None = None
+        self.history_sidebar: CommandHistorySidebar | None = None
 
         self.active_resizing_rule: ResizingRule | None = None
         self.pause_system_monitoring = False
@@ -232,6 +241,10 @@ class Terry(App, ResizeContainersWatcherMixin, TerraformActionHandlerMixin, Syst
                 with CommandsLog(id=MainScreenIdentifiers.COMMANDS_LOG_ID) as log_component:
                     self.log_component = log_component
 
+            with Vertical(id=MainScreenIdentifiers.SIDE_MENU):
+                yield SidebarButton(content="⥻", action=self.action_toggle_history_sidebar)
+            with CommandHistorySidebar() as history_sidebar:
+                self.history_sidebar = history_sidebar
         yield Footer()
 
     async def on_mount(self):
@@ -329,6 +342,10 @@ class Terry(App, ResizeContainersWatcherMixin, TerraformActionHandlerMixin, Syst
         self.cleanup_observer()
         if self._tf_command_executor:
             self._tf_command_executor.cancel()
+
+    def watch_show_history_sidebar(self, show_history_sidebar: bool) -> None:
+        """Set or unset visible class when reactive changes."""
+        self.query_one(CommandHistorySidebar).toggle(show_history_sidebar)
 
     # ------------------------------------------------------------------------------------------------------------------
     # Environment methods
@@ -603,3 +620,10 @@ class Terry(App, ResizeContainersWatcherMixin, TerraformActionHandlerMixin, Syst
             None
         """
         self.push_screen(SearchScreen(self.work_dir))
+
+    def action_exit(self):
+        self.show_history_sidebar = False
+
+    def action_toggle_history_sidebar(self) -> None:
+        """Toggle the sidebar visibility."""
+        self.show_history_sidebar = not self.show_history_sidebar

@@ -3,11 +3,10 @@ from unittest.mock import patch
 import pytest
 from watchdog.events import FileSystemEvent, EVENT_TYPE_MODIFIED, EVENT_TYPE_CREATED
 
-from terry.infrastructure.terraform.core.exceptions import TerraformFormatException
-from terry.presentation.cli.custom.messages.tf_format_action_request import FormatActionRequest
+from terry.presentation.cli.messages.tf_format_action_request import FormatActionRequest
 from terry.presentation.cli.screens.tf_format.main import FormatScope
 from terry.presentation.cli.screens.main.containers.content import Content
-from terry.settings import DEFAULT_THEME, CommandStatus
+from terry.settings import DEFAULT_THEME
 
 WORKSPACES_COMPONENT_ID = "#workspaces"
 WORKSPACES_RADIO_SET_ID = "#workspaces_radio_set"
@@ -64,59 +63,6 @@ class TestTerryApp:
 
             await pilot.pause()
             pilot.app.terraform_core_service.fmt.assert_not_called()
-
-    @pytest.mark.asyncio
-    async def test_format_current_file_request(self, app):
-        """
-        Scenario: Format request
-            Given the application is running
-            And terraform files are loaded
-            When I request to format the current file
-            Then the format action should be executed
-        """
-        async with app.run_test() as pilot:
-            tf_file_name = "main.tf"
-
-            content_tabs = pilot.app.query_one(Content)
-            content_tabs.active_tab = tf_file_name
-
-            # Publish the format request
-            with patch("terry.presentation.cli.screens.main.main.Terry.write_command_log") as write_cmd_log_mock:
-                pilot.app.post_message(FormatActionRequest(FORMAT_ACTION_PARAMS))
-
-                await pilot.pause()
-
-                pilot.app.terraform_core_service.fmt.assert_called_once_with(tf_file_name)
-                write_cmd_log_mock.assert_called_once_with("terraform fmt", CommandStatus.SUCCESS, "")
-
-    @pytest.mark.asyncio
-    async def test_format_current_file_error_request(self, app):
-        """
-        Scenario: Format request
-            Given the application is running
-            And terraform files are loaded
-            And the format action fails
-            When I request to format the current file
-            Then the error message should be displayed
-        """
-        async with app.run_test() as pilot:
-            tf_file_name = "main.tf"
-            error_message = "Failed to format file"
-            command = "terraform fmt"
-
-            content_tabs = pilot.app.query_one(Content)
-            content_tabs.active_tab = tf_file_name
-
-            pilot.app.terraform_core_service.fmt.side_effect = TerraformFormatException(command, error_message)
-
-            # Publish the format request
-            with patch("terry.presentation.cli.screens.main.main.Terry.write_command_log") as write_cmd_log_mock:
-                pilot.app.post_message(FormatActionRequest(FORMAT_ACTION_PARAMS))
-
-                await pilot.pause()
-
-                pilot.app.terraform_core_service.fmt.assert_called_once_with(tf_file_name)
-                write_cmd_log_mock.assert_called_once_with(command, CommandStatus.ERROR, error_message)
 
     @pytest.mark.asyncio
     async def test_update_selected_file_content(self, app):

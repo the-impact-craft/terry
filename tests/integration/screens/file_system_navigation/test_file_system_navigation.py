@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 import pytest
 from textual.widgets import Static
 
-from terry.presentation.cli.custom.widgets.file_system_navigator import FileSystemNavigator
+from terry.presentation.cli.widgets.file_system_navigator import FileSystemNavigator
 from terry.presentation.cli.screens.file_system_navigation.main import (
     FileSystemNavigationModal,
 )

@@ -25,6 +25,7 @@ def main(project_path: Path = Path.cwd()):  # pragma: no cover
     di_container = DiContainer()
     di_container.config.animation_enabled.from_value(True)
     di_container.config.work_dir.from_value(project_path)
+    di_container.config.cache_dir.from_value(project_path / ".terry/.cache")
     di_container.wire(packages=["terry.presentation.cli"])
     app = Terry(work_dir=project_path)
     app.run()

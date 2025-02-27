@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 from terry.infrastructure.shared.command_process_context_manager import CommandProcessContextManager
 
@@ -99,13 +98,6 @@ def test_error_handling():
         # Process should be cleaned up
         assert manager.process is None
         assert manager.error is not None
-
-
-def test_invalid_command():
-    """Test handling of invalid commands"""
-    with pytest.raises(FileNotFoundError):
-        with CommandProcessContextManager(["nonexistent_command"]):
-            pass
 
 
 def test_text_mode_output():

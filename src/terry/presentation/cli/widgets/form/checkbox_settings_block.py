@@ -4,8 +4,8 @@ from textual.containers import Horizontal, Container
 from textual.css.query import NoMatches
 from textual.widgets import Checkbox, Static
 
-from terry.presentation.cli.custom.widgets.clickable_icon import ClickableIcon
-from terry.presentation.cli.custom.widgets.form.collapsible_with_no_title import CollapsibleWithNoTitle
+from terry.presentation.cli.widgets.clickable_icon import ClickableIcon
+from terry.presentation.cli.widgets.form.collapsible_with_no_title import CollapsibleWithNoTitle
 
 
 class CheckboxSettingBlock(Container):

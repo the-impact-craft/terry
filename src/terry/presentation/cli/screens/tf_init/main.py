@@ -20,12 +20,12 @@ from terry.presentation.cli.commands_descriptions import (
     INIT_PLUGIN_DIR_DESCRIPTION,
     INIT_TEST_DIRECTORY_DESCRIPTION,
 )
-from terry.presentation.cli.custom.messages.tf_init_action_request import InitActionRequest
-from terry.presentation.cli.custom.widgets.buttons.add_key_value_button import AddKeyValueButton
-from terry.presentation.cli.custom.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
-from terry.presentation.cli.custom.widgets.form.checkbox_settings_block import CheckboxSettingBlock
-from terry.presentation.cli.custom.widgets.form.collapsible_info_settings_block import CollapsibleInfoBlock
-from terry.presentation.cli.custom.widgets.modal_control_label import ModalControlLabel
+from terry.presentation.cli.messages.tf_init_action_request import InitActionRequest
+from terry.presentation.cli.widgets.buttons.add_key_value_button import AddKeyValueButton
+from terry.presentation.cli.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
+from terry.presentation.cli.widgets.form.checkbox_settings_block import CheckboxSettingBlock
+from terry.presentation.cli.widgets.form.collapsible_info_settings_block import CollapsibleInfoBlock
+from terry.presentation.cli.widgets.modal_control_label import ModalControlLabel
 from terry.presentation.cli.screens.base.base_tf_settings_screen import BaseTfSettingsModalScreen
 from terry.presentation.cli.screens.file_system_navigation.main import FileSystemSelectionValidationRule
 

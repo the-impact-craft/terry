@@ -9,10 +9,11 @@ from textual.reactive import reactive
 from textual.widgets import DirectoryTree, Tree
 from textual.widgets._directory_tree import DirEntry
 
-from terry.presentation.cli.custom.messages.dir_activate_message import DirActivate
-from terry.presentation.cli.custom.messages.files_select_message import FileSelect
-from terry.presentation.cli.custom.messages.path_delete_message import PathDelete
+from terry.presentation.cli.messages.dir_activate_message import DirActivate
+from terry.presentation.cli.messages.files_select_message import FileSelect
+from terry.presentation.cli.messages.path_delete_message import PathDelete
 from terry.presentation.cli.screens.question.main import QuestionScreen
+from terry.settings import DOUBLE_CLICK_THRESHOLD
 
 
 class TfDirectoryTree(DirectoryTree):
@@ -79,7 +80,10 @@ class TfDirectoryTree(DirectoryTree):
         current_click = (time(), dir_entry)
 
         if not self._safe_is_dir(dir_entry.path):
-            if current_click[0] - self.last_file_click[0] < 1.5 and current_click[1] == self.last_file_click[1]:
+            if (
+                current_click[0] - self.last_file_click[0] < DOUBLE_CLICK_THRESHOLD
+                and current_click[1] == self.last_file_click[1]
+            ):
                 self.post_message(FileSelect(dir_entry.path))
         else:
             self.post_message(DirActivate(dir_entry.path))

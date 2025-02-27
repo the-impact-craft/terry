@@ -287,3 +287,19 @@ class ApplySettings:
     state: Optional[str | Path] = None
     state_out: Optional[str | Path] = None
     plan: Optional[List[str | Path]] = None  # Temporary add as list, should be able to limit to a single path
+
+
+@dataclass
+class FormatSettings:
+    """
+    Handles configuration settings for text formatting.
+
+    This class is responsible for storing and managing various formatting
+    settings such as indentation, line wrapping, and other text layout
+    configurations used in text-based applications or tools. These settings
+    allow customization to adapt text processing according to specific user
+    requirements or system constraints.
+
+    """
+
+    path: Optional[str | Path] = None

@@ -1,24 +1,33 @@
-import asyncio
+from contextlib import contextmanager
+from datetime import datetime
 
-from terry.domain.terraform.core.entities import TerraformFormatScope
+from dependency_injector.wiring import Provide
+from textual.screen import Screen
+
+from terry.domain.terraform.core.entities import TerraformFormatScope, FormatSettings
 from terry.infrastructure.shared.command_process_context_manager import CommandProcessContextManager
 from terry.infrastructure.shared.command_utils import process_stdout_stderr
 from terry.infrastructure.terraform.core.commands_builders import (
     TerraformPlanCommandBuilder,
     TerraformInitCommandBuilder,
     TerraformApplyCommandBuilder,
+    TerraformFormatCommandBuilder,
 )
-from terry.infrastructure.terraform.core.exceptions import TerraformFormatException, TerraformValidateException
+from terry.infrastructure.terraform.core.exceptions import TerraformValidateException
 from terry.presentation.cli.action_handlers.main import action_handler_registry
-from terry.presentation.cli.custom.messages.tf_apply_action_request import ApplyActionRequest
-from terry.presentation.cli.custom.messages.tf_format_action_request import FormatActionRequest
-from terry.presentation.cli.custom.messages.tf_init_action_request import InitActionRequest
-from terry.presentation.cli.custom.messages.tf_plan_action_request import PlanActionRequest
-from terry.presentation.cli.custom.messages.tf_validate_action_request import ValidateActionRequest
-from terry.presentation.cli.custom.widgets.clickable_tf_action_label import ClickableTfActionLabel
+from terry.presentation.cli.cache import TerryCache
+from terry.presentation.cli.di_container import DiContainer
+from terry.presentation.cli.entities.command_cache import CommandCache
 from terry.presentation.cli.entities.terraform_command_executor import TerraformCommandExecutor
+from terry.presentation.cli.messages.tf_apply_action_request import ApplyActionRequest
+from terry.presentation.cli.messages.tf_format_action_request import FormatActionRequest
+from terry.presentation.cli.messages.tf_init_action_request import InitActionRequest
+from terry.presentation.cli.messages.tf_plan_action_request import PlanActionRequest
+from terry.presentation.cli.messages.tf_rerun_command import RerunCommandRequest
+from terry.presentation.cli.messages.tf_validate_action_request import ValidateActionRequest
 from terry.presentation.cli.screens.main.containers.content import Content
 from terry.presentation.cli.screens.tf_command_output.main import TerraformCommandOutputScreen
+from terry.presentation.cli.widgets.clickable_tf_action_label import ClickableTfActionLabel
 from terry.settings import CommandStatus
 
 
@@ -83,13 +92,19 @@ class TerraformActionHandlerMixin:
             if not format_scope:
                 self.notify("No file selected.", severity="warning")  # type: ignore
                 return
-        try:
-            output = self.terraform_core_service.fmt(format_scope)  # type: ignore
-        except TerraformFormatException as ex:
-            self._log_error("Failed to apply format settings.", ex.command, ex.message)
-            return
-        else:
-            self._log_success("Format settings applied successfully.", output.command, output.output)
+        settings = FormatSettings(path=format_scope)
+
+        command = TerraformFormatCommandBuilder().build_from_settings(settings)
+        if self._tf_command_executor:
+            self._tf_command_executor.cancel()
+
+        worker = self.run_worker(  # type: ignore
+            self.run_tf_action(command, "Failed to format."),
+            exit_on_error=True,
+            thread=True,
+            group="tf_command_worker",
+        )
+        self._tf_command_executor = TerraformCommandExecutor(command=command, worker=worker)  # type: ignore
 
     def on_validate_action_request(self, event: ValidateActionRequest) -> None:
         """
@@ -118,13 +133,14 @@ class TerraformActionHandlerMixin:
         Arguments:
             event (PlanApplyRequest): The event containing the plan settings to apply.
         """
-        self.push_screen(TerraformCommandOutputScreen())  # type: ignore
+        output_screen = TerraformCommandOutputScreen()
+        self.push_screen(output_screen)  # type: ignore
         command = TerraformPlanCommandBuilder().build_from_settings(event.settings)
         if self._tf_command_executor:
             self._tf_command_executor.cancel()
 
         worker = self.run_worker(  # type: ignore
-            self.run_tf_action(command, "Failed to apply plan settings."),
+            self.run_tf_action(command, "Failed to apply plan settings.", output_screen=output_screen),
             exit_on_error=True,
             thread=True,
             group="tf_command_worker",
@@ -144,14 +160,16 @@ class TerraformActionHandlerMixin:
             event (InitActionRequest): The initialization apply request
                 event that triggers this handler.
         """
-        self.push_screen(TerraformCommandOutputScreen())  # type: ignore
+        output_screen = TerraformCommandOutputScreen()
+        self.push_screen(output_screen)  # type: ignore
+
         command = TerraformInitCommandBuilder().build_from_settings(event.settings)
 
         if self._tf_command_executor:
             self._tf_command_executor.cancel()
 
         worker = self.run_worker(  # type: ignore
-            self.run_tf_action(command, error_message="Failed to apply plan settings."),
+            self.run_tf_action(command, error_message="Failed to apply plan settings.", output_screen=output_screen),
             exit_on_error=True,
             thread=True,
             group="tf_command_worker",
@@ -173,25 +191,47 @@ class TerraformActionHandlerMixin:
                 applying the Terraform plan.
 
         """
-        self.push_screen(TerraformCommandOutputScreen())  # type: ignore
+        output_screen = TerraformCommandOutputScreen()
+        self.push_screen(output_screen)  # type: ignore
         command = TerraformApplyCommandBuilder().build_from_settings(event.settings)
 
         if self._tf_command_executor:
             self._tf_command_executor.cancel()
 
         worker = self.run_worker(  # type: ignore
-            self.run_tf_action(command, error_message="Failed to apply settings."),
+            self.run_tf_action(command, error_message="Failed to apply settings.", output_screen=output_screen),
             exit_on_error=True,
             thread=True,
             group="tf_command_worker",
         )
         self._tf_command_executor = TerraformCommandExecutor(command=command, worker=worker)
 
+    async def on_rerun_command_request(self, event: RerunCommandRequest):
+        output_screen = None
+        if event.run_in_modal:
+            output_screen = TerraformCommandOutputScreen()
+            self.push_screen(output_screen)  # type: ignore
+        if self._tf_command_executor:
+            self._tf_command_executor.cancel()
+        worker = self.run_worker(  # type: ignore
+            self.run_tf_action(event.command, error_message=event.error_message, output_screen=output_screen),
+            exit_on_error=True,
+            thread=True,
+            group="tf_command_worker",
+        )
+        self._tf_command_executor = TerraformCommandExecutor(command=event.command, worker=worker)
+
     def on_terraform_command_output_screen_close(self, _: TerraformCommandOutputScreen.Close):
         if self._tf_command_executor:
             self._tf_command_executor.cancel()
 
-    async def run_tf_action(self, tf_command: list[str], error_message: str):
+    async def run_tf_action(
+        self,
+        tf_command: list[str],
+        error_message: str,
+        cache: TerryCache = Provide[DiContainer.cache],
+        output_screen: Screen | None = None,
+    ):
         """
         Executes an asynchronous plan based on the specified tab name and updates the UI
         elements to reflect the ongoing process. The method logs the corresponding command
@@ -199,28 +239,31 @@ class TerraformActionHandlerMixin:
         error, appropriate notifications are shown, and the error is logged.
 
         Arguments:
-           tf_command (list[str]): The Terraform command to execute.
+            tf_command (list[str]): The Terraform command to execute.
             error_message (str): The error message to display in case of an error.
+            cache (TerryCache): The cache instance to store the executed commands
+            output_screen (Screen): The screen to display the command output.
         """
 
-        await asyncio.sleep(2)
-
         tf_command_str = " ".join(tf_command)
-        area = self.app.query_one(TerraformCommandOutputScreen)  # type: ignore
+
         manager = CommandProcessContextManager(tf_command, str(self.work_dir))  # type: ignore
         self._tf_command_executor.command_process = manager  # type: ignore
-        output = []
-        self.pause_system_monitoring = True  # type: ignore
-        with manager as (stdin, stdout, stderr):
-            area.stdin = stdin
-            for line in process_stdout_stderr(stdout, stderr):
-                area.write_log(line)
-                output.append(line)
-            self._log_success("Command executed successfully.", tf_command_str, "\n".join(output))
 
-        self.pause_system_monitoring = False  # type: ignore
+        cache.extend(
+            "commands",
+            CommandCache(
+                tf_command, datetime.now(), run_in_modal=output_screen is not None, error_message=error_message
+            ),
+        )  # type: ignore
 
-        area.stdin = None
+        if self.history_sidebar:  # type: ignore
+            self.history_sidebar.refresh_content()  # type: ignore
+
+        with self.paused_system_monitoring():
+            with manager as (stdin, stdout, stderr):
+                self._handle_logs(tf_command_str, output_screen, stdin, stdout, stderr)
+
         if manager.error:
             self._log_error(error_message, tf_command_str, str(manager.error))
             return
@@ -254,3 +297,30 @@ class TerraformActionHandlerMixin:
         self.log.error(error_message)  # type: ignore
         self.notify(message, severity="error")  # type: ignore
         self.write_command_log(command, CommandStatus.ERROR, error_message)  # type: ignore
+
+    def _get_ui_area(self):
+        """Sets up the UI output area based on the background execution flag."""
+        return self.app.query_one(TerraformCommandOutputScreen)  # type: ignore
+
+    def _handle_logs(self, command, output_screen, stdin, stdout, stderr):
+        """Handles logging the process output and updating the UI."""
+        output = []
+
+        if output_screen:
+            with output_screen.stdin_context(stdin):
+                for line in process_stdout_stderr(stdout, stderr):
+                    output_screen.write_log(line)
+                    output.append(line)
+        else:
+            for line in process_stdout_stderr(stdout, stderr):
+                output.append(line)
+
+        self._log_success("Command executed.", command, "\n".join(output))
+
+    @contextmanager
+    def paused_system_monitoring(self):
+        try:
+            self.pause_system_monitoring = True
+            yield
+        finally:
+            self.pause_system_monitoring = False

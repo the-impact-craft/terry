@@ -2,7 +2,7 @@ import pytest
 from textual.widgets import Static
 
 from terry.domain.terraform.core.entities import TerraformValidateSettingsAttributes, ValidateSettings
-from terry.presentation.cli.custom.messages.tf_validate_action_request import ValidateActionRequest
+from terry.presentation.cli.messages.tf_validate_action_request import ValidateActionRequest
 from terry.presentation.cli.screens.tf_validate.main import ValidateSettingsScreen
 from tests.integration.utils import click
 

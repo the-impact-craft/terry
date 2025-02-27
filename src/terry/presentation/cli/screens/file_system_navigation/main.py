@@ -13,8 +13,8 @@ from textual.screen import ModalScreen
 from textual.widgets import Static
 
 from terry.infrastructure.file_system.services import FileSystemService
-from terry.presentation.cli.custom.widgets.file_system_navigator import FileSystemNavigator
-from terry.presentation.cli.custom.widgets.modal_control_label import ModalControlLabel
+from terry.presentation.cli.widgets.file_system_navigator import FileSystemNavigator
+from terry.presentation.cli.widgets.modal_control_label import ModalControlLabel
 from terry.presentation.cli.di_container import DiContainer
 
 

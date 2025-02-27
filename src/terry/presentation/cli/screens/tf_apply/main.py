@@ -17,12 +17,12 @@ from terry.presentation.cli.commands_descriptions import (
     APPLY_DISABLE_LOCK_DESCRIPTION,
     APPLY_PLAN_DESCRIPTION,
 )
-from terry.presentation.cli.custom.messages.tf_apply_action_request import ApplyActionRequest
-from terry.presentation.cli.custom.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
-from terry.presentation.cli.custom.widgets.form.checkbox_settings_block import CheckboxSettingBlock
-from terry.presentation.cli.custom.widgets.form.collapsible_info_settings_block import CollapsibleInfoBlock
-from terry.presentation.cli.custom.widgets.form.text_input_block import TextInputBlock
-from terry.presentation.cli.custom.widgets.modal_control_label import ModalControlLabel
+from terry.presentation.cli.messages.tf_apply_action_request import ApplyActionRequest
+from terry.presentation.cli.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
+from terry.presentation.cli.widgets.form.checkbox_settings_block import CheckboxSettingBlock
+from terry.presentation.cli.widgets.form.collapsible_info_settings_block import CollapsibleInfoBlock
+from terry.presentation.cli.widgets.form.text_input_block import TextInputBlock
+from terry.presentation.cli.widgets.modal_control_label import ModalControlLabel
 from terry.presentation.cli.screens.base.base_tf_settings_screen import BaseTfSettingsModalScreen
 from terry.presentation.cli.screens.file_system_navigation.main import FileSystemSelectionValidationRule
 

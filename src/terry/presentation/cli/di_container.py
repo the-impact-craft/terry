@@ -1,9 +1,11 @@
 from dependency_injector import containers, providers
+from diskcache import Cache
 
 from terry.infrastructure.file_system.services import FileSystemService
 from terry.infrastructure.operation_system.services import OperationSystemService
 from terry.infrastructure.terraform.core.services import TerraformCoreService
 from terry.infrastructure.terraform.workspace.services import WorkspaceService
+from terry.presentation.cli.cache import TerryCache
 
 
 class DiContainer(containers.DeclarativeContainer):
@@ -27,4 +29,11 @@ class DiContainer(containers.DeclarativeContainer):
     workspace_service = providers.Factory(
         WorkspaceService,
         work_dir=config.work_dir,
+    )
+
+    disk_cache = providers.Singleton(Cache, config.cache_dir)
+
+    cache = providers.Factory(
+        TerryCache,
+        cache=disk_cache,
     )

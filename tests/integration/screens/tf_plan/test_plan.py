@@ -3,13 +3,13 @@ from unittest.mock import patch
 import pytest
 
 from terry.domain.terraform.core.entities import TerraformPlanSettingsAttributes
-from terry.presentation.cli.custom.widgets.buttons.add_key_value_button import AddKeyValueButton
-from terry.presentation.cli.custom.widgets.buttons.delete_button import DeleteButton
-from terry.presentation.cli.custom.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
-from terry.presentation.cli.custom.widgets.buttons.view_secret_field_button import ViewSecretFieldButton
-from terry.presentation.cli.custom.widgets.clickable_icon import ClickableIcon
-from terry.presentation.cli.custom.widgets.form.file_selection_block import FileSelectionBlock
-from terry.presentation.cli.custom.widgets.form.key_value_block import KeyValueBlock
+from terry.presentation.cli.widgets.buttons.add_key_value_button import AddKeyValueButton
+from terry.presentation.cli.widgets.buttons.delete_button import DeleteButton
+from terry.presentation.cli.widgets.buttons.open_file_navigator_modal_button import FileNavigatorModalButton
+from terry.presentation.cli.widgets.buttons.view_secret_field_button import ViewSecretFieldButton
+from terry.presentation.cli.widgets.clickable_icon import ClickableIcon
+from terry.presentation.cli.widgets.form.file_selection_block import FileSelectionBlock
+from terry.presentation.cli.widgets.form.key_value_block import KeyValueBlock
 from terry.presentation.cli.screens.file_system_navigation.main import FileSystemNavigationModal
 from terry.presentation.cli.screens.tf_plan.main import PlanSettingsScreen
 from tests.integration.utils import DEFAULT_SCREEN_ID, enter, click

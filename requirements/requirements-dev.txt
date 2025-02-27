@@ -8,7 +8,7 @@
 -r requirements-base.txt
 aiohappyeyeballs==2.4.6
     # via aiohttp
-aiohttp==3.11.12
+aiohttp==3.11.13
     # via
     #   aiohttp-jinja2
     #   textual-dev
@@ -31,7 +31,7 @@ frozenlist==1.5.0
     # via
     #   aiohttp
     #   aiosignal
-identify==2.6.7
+identify==2.6.8
     # via pre-commit
 idna==3.10
     # via yarl
@@ -58,7 +58,7 @@ pluggy==1.5.0
     # via pytest
 pre-commit==4.1.0
     # via -r requirements/requirements-dev.in
-propcache==0.2.1
+propcache==0.3.0
     # via
     #   aiohttp
     #   yarl
@@ -78,7 +78,7 @@ pyyaml==6.0.2
     # via pre-commit
 ruff==0.9.3
     # via -r requirements/requirements-dev.in
-syrupy==4.8.1
+syrupy==4.8.2
     # via pytest-textual-snapshot
 textual-dev==1.7.0
     # via -r requirements/requirements-dev.in

@@ -7,7 +7,7 @@ from textual.message import Message
 from textual.screen import ModalScreen
 from textual.widgets import Label
 
-from terry.presentation.cli.custom.widgets.modal_control_label import ModalControlLabel
+from terry.presentation.cli.widgets.modal_control_label import ModalControlLabel
 
 
 class Control(ModalControlLabel):

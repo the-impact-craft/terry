@@ -2,13 +2,13 @@ import time
 
 from textual.events import MouseMove, MouseUp
 
-from terry.presentation.cli.custom.messages.move_resizing_rule import (
+from terry.presentation.cli.messages.move_resizing_rule import (
     MoveEvent,
     MoveResizingRule,
     SelectResizingRule,
     ReleaseResizingRule,
 )
-from terry.presentation.cli.custom.widgets.resizable_rule import ResizingRule
+from terry.presentation.cli.widgets.resizable_rule import ResizingRule
 from terry.settings import MIN_SECTION_DIMENSION
 
 

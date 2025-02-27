@@ -6,7 +6,7 @@ from textual.app import ComposeResult
 from textual.containers import VerticalScroll
 from textual.widgets import Label, ListView, ListItem
 
-from terry.presentation.cli.custom.messages.files_select_message import FileSelect
+from terry.presentation.cli.messages.files_select_message import FileSelect
 
 
 class LabelItem(ListItem):

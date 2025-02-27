@@ -2,7 +2,7 @@ from textual.events import MouseDown, MouseUp
 from textual.reactive import reactive
 from textual.widgets import Rule
 
-from terry.presentation.cli.custom.messages.move_resizing_rule import (
+from terry.presentation.cli.messages.move_resizing_rule import (
     MoveEvent,
     MoveResizingRule,
     SelectResizingRule,

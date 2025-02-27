@@ -125,6 +125,9 @@ def app(
     di_container = DiContainer()
     di_container.config.work_dir.from_value(tmp_path)
     di_container.config.animation_enabled.from_value(False)
+    cache_mock = mock.MagicMock()
+    cache_mock.get.return_value = None
+    di_container.cache.override(cache_mock)
     di_container.wire(packages=["terry.presentation.cli", "tests"])
 
     with (

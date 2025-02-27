@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
 from terry.domain.terraform.core.entities import ApplySettings
-from terry.presentation.cli.custom.messages.base_tf_action_request import BaseTfActionRequest
+from terry.presentation.cli.messages.base_tf_action_request import BaseTfActionRequest
 
 
 @dataclass

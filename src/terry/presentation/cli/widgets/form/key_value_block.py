@@ -5,8 +5,8 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import Input
 from textual.widgets import Static
-from terry.presentation.cli.custom.widgets.buttons.delete_button import DeleteButton
-from terry.presentation.cli.custom.widgets.buttons.view_secret_field_button import ViewSecretFieldButton
+from terry.presentation.cli.widgets.buttons.delete_button import DeleteButton
+from terry.presentation.cli.widgets.buttons.view_secret_field_button import ViewSecretFieldButton
 
 
 @dataclass

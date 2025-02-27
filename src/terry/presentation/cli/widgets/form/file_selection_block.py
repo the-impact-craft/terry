@@ -5,7 +5,7 @@ from textual.app import ComposeResult
 from textual.containers import Horizontal
 from textual.widgets import Static
 
-from terry.presentation.cli.custom.widgets.buttons.delete_button import DeleteButton
+from terry.presentation.cli.widgets.buttons.delete_button import DeleteButton
 
 
 class FileSelectionBlock(Horizontal):

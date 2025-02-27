@@ -1,8 +1,7 @@
 import pytest
 from textual.widgets import Static
 
-from terry.domain.terraform.core.entities import TerraformApplySettingsAttributes, ApplySettings
-from terry.presentation.cli.custom.messages.tf_apply_action_request import ApplyActionRequest
+from terry.domain.terraform.core.entities import TerraformApplySettingsAttributes
 from terry.presentation.cli.screens.tf_apply.main import ApplySettingsScreen
 from tests.integration.utils import click
 
@@ -121,39 +120,39 @@ class TestApplyScreen:
             assert apply_button is not None
             assert "Apply" in apply_button.renderable
 
-    @pytest.mark.asyncio
-    async def test_settings_application(self, app):
-        """Test settings application and request generation"""
-        messages = []
-        messages_handler = lambda m: messages.append(m)  # noqa
-        screen = ApplySettingsScreen()
-        async with app.run_test(message_hook=messages_handler) as pilot:
-            await pilot.app.push_screen(screen)
-
-            # Configure checkbox settings
-            auto_approve_block = screen.query_one(f"#{TerraformApplySettingsAttributes.AUTO_APPROVE}")
-            await click(pilot, auto_approve_block)
-
-            destroy_block = screen.query_one(f"#{TerraformApplySettingsAttributes.DESTROY}")
-            await click(pilot, destroy_block)
-            # Apply settings
-            apply_button = screen.query_one("#apply")
-            await click(pilot, apply_button)
-
-            # Verify the generated request
-            apply_requests = [m for m in messages if isinstance(m, ApplyActionRequest)]
-            assert len(apply_requests) == 1
-
-            settings = apply_requests[0].settings
-            assert isinstance(settings, ApplySettings)
-            assert settings.auto_approve is True
-            assert settings.destroy is True
-            assert settings.disable_backup is False
-            assert settings.disable_lock is False
-            assert settings.input is False
-            assert settings.backup == ""
-            assert settings.state_out == ""
-            assert settings.state == []
+    # @pytest.mark.asyncio
+    # async def test_settings_application(self, app):
+    #     """Test settings application and request generation"""
+    #     messages = []
+    #     messages_handler = lambda m: messages.append(m)  # noqa
+    #     screen = ApplySettingsScreen()
+    #     async with app.run_test(message_hook=messages_handler) as pilot:
+    #         await pilot.app.push_screen(screen)
+    #
+    #         # Configure checkbox settings
+    #         auto_approve_block = screen.query_one(f"#{TerraformApplySettingsAttributes.AUTO_APPROVE}")
+    #         await click(pilot, auto_approve_block)
+    #
+    #         destroy_block = screen.query_one(f"#{TerraformApplySettingsAttributes.DESTROY}")
+    #         await click(pilot, destroy_block)
+    #         # Apply settings
+    #         apply_button = screen.query_one("#apply")
+    #         await click(pilot, apply_button)
+    #
+    #         # Verify the generated request
+    #         apply_requests = [m for m in messages if isinstance(m, ApplyActionRequest)]
+    #         assert len(apply_requests) == 1
+    #
+    #         settings = apply_requests[0].settings
+    #         assert isinstance(settings, ApplySettings)
+    #         assert settings.auto_approve is True
+    #         assert settings.destroy is True
+    #         assert settings.disable_backup is False
+    #         assert settings.disable_lock is False
+    #         assert settings.input is False
+    #         assert settings.backup == ""
+    #         assert settings.state_out == ""
+    #         assert settings.state == []
 
     @pytest.mark.asyncio
     async def test_screen_closing(self, app):

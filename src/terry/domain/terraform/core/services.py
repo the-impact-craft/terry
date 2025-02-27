@@ -2,7 +2,6 @@ import abc
 
 from terry.domain.terraform.core.entities import (
     TerraformVersion,
-    TerraformFormatOutput,
     ValidateSettings,
 )
 
@@ -21,19 +20,6 @@ class BaseTerraformCoreService(metaclass=abc.ABCMeta):
 
         Returns:
             TerraformVersion: An object containing the Terraform version details.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def apply(self):
-        """
-        Apply the Terraform infrastructure configuration.
-
-        This method is an abstract method that must be implemented by subclasses to execute the `terraform apply`
-        command and manage infrastructure deployment.
-
-        Raises:
-            NotImplementedError: Indicates that the method must be overridden by a concrete implementation in a subclass.
         """
         raise NotImplementedError
 
@@ -72,21 +58,5 @@ class BaseTerraformCoreService(metaclass=abc.ABCMeta):
         Returns:
             TerraformValidateOutput: The result of validation containing the executed
                 command as a string and cleaned-up standard output.
-        """
-        raise NotImplementedError
-
-    @abc.abstractmethod
-    def fmt(self, path: str | None = None) -> TerraformFormatOutput:
-        """
-        Format the Terraform configuration files.
-
-        This method is an abstract method that should be implemented by subclasses to format the Terraform configuration
-        files.
-
-        Raises:
-            NotImplementedError: Indicates that the method must be implemented by a concrete subclass.
-
-        Returns:
-            TerraformFormatOutput: An object containing the formatted output.
         """
         raise NotImplementedError

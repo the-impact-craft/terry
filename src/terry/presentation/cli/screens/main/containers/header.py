@@ -2,7 +2,7 @@ from textual.app import ComposeResult
 from textual.containers import Container, HorizontalScroll
 
 from terry.domain.terraform.core.entities import TerraformCommand
-from terry.presentation.cli.custom.widgets.clickable_tf_action_label import (
+from terry.presentation.cli.widgets.clickable_tf_action_label import (
     ClickableTfActionLabel,
 )
 

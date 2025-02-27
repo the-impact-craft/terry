@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from dataclasses import dataclass
 from typing import IO
 
@@ -100,3 +101,12 @@ class TerraformCommandOutputScreen(ModalScreen):
     def action_exit(self):
         self.post_message(self.Close())
         self.app.pop_screen()
+
+    @contextmanager
+    def stdin_context(self, stdin: IO[bytes]):
+        self.stdin = stdin
+        try:
+            yield
+        finally:
+            self.stdin = None
+            self.log("STDIN is closed.")

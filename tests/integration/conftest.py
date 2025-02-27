@@ -1,11 +1,12 @@
 from pathlib import Path
 from unittest import mock
+from unittest.mock import MagicMock
 
 import pytest
 
 from terry.domain.file_system.entities import ListDirOutput
 from terry.domain.operation_system.entities import OperationSystem, Variable
-from terry.domain.terraform.core.entities import TerraformVersion, TerraformFormatOutput
+from terry.domain.terraform.core.entities import TerraformVersion
 from terry.domain.terraform.workspaces.entities import WorkspaceListOutput, Workspace
 from terry.presentation.cli.di_container import DiContainer
 from terry.presentation.cli.screens.main.main import Terry
@@ -80,10 +81,6 @@ def terraform_core_service() -> mock.Mock:
         terraform_outdated=False,
         provider_selections={},
         command="terraform version",
-    )
-    terraform_core_service.fmt.return_value = TerraformFormatOutput(
-        command="terraform fmt",
-        output="",
     )
     return terraform_core_service
 
@@ -167,9 +164,13 @@ def app(
     :param operation_system_service: A mocked service for OS-related operations.
     :return: An instance of Terry configured for testing.
     """
+
+    cache_mock = MagicMock()
+    cache_mock.get.return_value = []
     di_container = DiContainer()
     di_container.config.work_dir.from_value(tmp_path)
     di_container.config.animation_enabled.from_value(True)
+    di_container.cache.override(cache_mock)
     di_container.wire(packages=["terry.presentation.cli", "tests"])
 
     with (

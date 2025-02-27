@@ -12,7 +12,12 @@
 }
 
 #right_panel {
-  width: 79%;
+  width: 76%;
+}
+
+#side_menu {
+  width: auto;
+  border-left: solid #3a3a3a;
 }
 
 #workspaces {

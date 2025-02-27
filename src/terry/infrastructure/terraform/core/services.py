@@ -5,7 +5,6 @@ from pathlib import Path
 from terry.domain.operation_system.services import BaseOperationSystemService
 from terry.domain.terraform.core.entities import (
     TerraformVersion,
-    TerraformFormatOutput,
     ValidateSettings,
     TerraformValidateOutput,
 )
@@ -14,10 +13,9 @@ from terry.infrastructure.shared.command_utils import clean_up_command_output
 from terry.infrastructure.terraform.core.commands_builders import TerraformValidateCommandBuilder
 from terry.infrastructure.terraform.core.exceptions import (
     TerraformVersionException,
-    TerraformFormatException,
     TerraformValidateException,
 )
-from terry.settings import TERRAFORM_VERSION_TIMEOUT, TERRAFORM_FORMAT_TIMEOUT, TERRAFORM_VALIDATE_TIMEOUT
+from terry.settings import TERRAFORM_VERSION_TIMEOUT, TERRAFORM_VALIDATE_TIMEOUT
 
 
 class TerraformCoreService(BaseTerraformCoreService):
@@ -60,36 +58,6 @@ class TerraformCoreService(BaseTerraformCoreService):
             raise TerraformVersionException(str_command, f"Invalid version output format: {str(e)}")
         except Exception as e:
             raise TerraformVersionException(str_command, str(e))
-
-    # TODO: remove pragma once the method is implemented
-    def apply(self):  # pragma: no cover
-        """
-        Apply the Terraform infrastructure configuration.
-
-        Executes the 'terraform apply' command to create or update infrastructure resources defined in the current
-        Terraform configuration.
-
-        Returns:
-            tuple: A 3-tuple containing:
-                - stdout (bytes): Standard output from the terraform apply command
-                - stderr (bytes): Standard error output from the terraform apply command
-                - returncode (int): Return code indicating the result of the apply operation (0 for success)
-
-        Raises:
-            subprocess.CalledProcessError: If the terraform apply command fails to execute
-        """
-        try:
-            process = subprocess.run(
-                ["terraform", "apply", "-auto-approve"],
-                capture_output=True,
-                check=True,
-                timeout=3600,  # 1 hour timeout
-            )
-            return process.stdout, process.stderr, process.returncode
-        except subprocess.TimeoutExpired as e:
-            return b"", f"Operation timed out after {e.timeout}s".encode(), 1
-        except subprocess.CalledProcessError as e:
-            return e.stdout, e.stderr, e.returncode
 
     # TODO: remove pragma once the method is implemented
     def destroy(self):  # pragma: no cover
@@ -148,37 +116,3 @@ class TerraformCoreService(BaseTerraformCoreService):
             raise TerraformValidateException(str_command, clean_up_command_output(e.stderr))
         except Exception as e:
             raise TerraformValidateException(str_command, clean_up_command_output(str(e)))
-
-    def fmt(self, path: str | None = None) -> TerraformFormatOutput:
-        """
-        Format the Terraform configuration files.
-
-        Executes the 'terraform fmt' command to format the Terraform configuration files in the current directory.
-
-        Returns:
-            TerraformFormatOutput: An object containing the formatted output of the Terraform configuration files.
-        Raises:
-            TerraformFormatException: If an error occurs during the formatting
-        """
-
-        command = ["terraform", "fmt", "-diff"]
-        if path:
-            command.append(path)
-
-        str_command = " ".join(command)
-        try:
-            process = subprocess.run(
-                command,
-                cwd=self.work_dir,
-                capture_output=True,
-                check=True,
-                timeout=TERRAFORM_FORMAT_TIMEOUT,  # 5 minutes should be sufficient for formatting
-                text=True,
-            )
-            return TerraformFormatOutput(command=str_command, output=clean_up_command_output(process.stdout))
-        except subprocess.TimeoutExpired as e:
-            raise TerraformFormatException(str_command, f"Formatting timed out after {e.timeout}s")
-        except subprocess.CalledProcessError as e:
-            raise TerraformFormatException(str_command, clean_up_command_output(e.stderr))
-        except Exception as e:
-            raise TerraformFormatException(str_command, str(e))

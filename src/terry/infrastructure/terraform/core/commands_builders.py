@@ -1,7 +1,13 @@
 from pathlib import Path
 from typing import Union, Dict, List
 
-from terry.domain.terraform.core.entities import PlanSettings, InitSettings, ValidateSettings, ApplySettings
+from terry.domain.terraform.core.entities import (
+    PlanSettings,
+    InitSettings,
+    ValidateSettings,
+    ApplySettings,
+    FormatSettings,
+)
 
 
 class TerraformPlanCommandBuilder:
@@ -298,4 +304,23 @@ class TerraformApplyCommandBuilder:
             self.add_state_out(settings.state_out)
         if settings.plan:
             self.app_plan_file(f"{settings.plan[0]}")
+        return self.build()
+
+
+class TerraformFormatCommandBuilder:
+    def __init__(self):
+        """Initialize the base terraform apply command."""
+        self.command = ["terraform", "fmt"]
+
+    def add_path(self, path: str | Path) -> "TerraformFormatCommandBuilder":
+        self.command.extend([str(path)])
+        return self
+
+    def build(self) -> list[str]:
+        """Build and return the final terraform apply command."""
+        return self.command
+
+    def build_from_settings(self, settings: FormatSettings) -> list[str]:
+        if settings.path:
+            self.add_path(settings.path)
         return self.build()

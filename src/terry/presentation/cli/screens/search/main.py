@@ -16,7 +16,7 @@ from textual.widgets import Input, Label, ListView, ListItem, Static, LoadingInd
 from terry.domain.file_system.entities import SearchResult
 from terry.infrastructure.file_system.exceptions import FileSystemGrepException
 from terry.infrastructure.file_system.services import FileSystemService
-from terry.presentation.cli.custom.messages.files_select_message import FileSelect
+from terry.presentation.cli.messages.files_select_message import FileSelect
 from terry.presentation.cli.di_container import DiContainer
 from terry.settings import MAX_RESULTS, MAX_TEXT_LENGTH, DOUBLE_CLICK_THRESHOLD
 
